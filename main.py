@@ -106,6 +106,11 @@ for cidade, coluna_proxima in result_dict.items():
         # Renomear a primeira coluna para 'Series 1'
         df_city = df_city.rename(columns={df_city.columns[0]: 'Series 1'})
         
+        # Converter a primeira coluna para float e a segunda para datetime
+        # Converter a primeira coluna para float (substituir vírgulas por pontos)
+        df_city['Series 1'] = df_city['Series 1'].str.replace(',', '.').astype(float)
+        df_city['Data'] = pd.to_datetime(df_city['Data'], errors='coerce')
+        
         # Salva em um arquivo Excel
         df_city.to_excel(f'./Data/{cidade}.xlsx', index=False)
         print(f'Salvo {cidade}.xlsx')
