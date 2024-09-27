@@ -1,20 +1,7 @@
 import pandas as pd
 import numpy as np
 
-def find_cities_coordinates():
-    CIDADES_A_PROCURAR = [
-        'Capitão Enéas',
-        'Ibiracatu',
-        'Janaúba',
-        'Japonvar',
-        'Lontra',
-        'Montes Claros',
-        'Patis',
-        'Varzelândia',
-        'Verdelândia',
-        'São João da Ponte'
-    ]
-    
+def find_cities_coordinates(CIDADES_A_PROCURAR):
     DF_COORDS = pd.read_excel('CoordenadasMunicipios.xlsx')
     
     MUNICIPIOS_DICT = {
@@ -46,6 +33,18 @@ def convert_coordinates_to_negative(COORD):
 def coordinates_euclidean_distance(COORD1, COORD2):
     return np.sqrt((COORD1[0] - COORD2[0])**2 + (COORD1[1] - COORD2[1])**2)
 
+CIDADES_A_PROCURAR = [
+        'Capitão Enéas',
+        'Ibiracatu',
+        'Janaúba',
+        'Japonvar',
+        'Lontra',
+        'Montes Claros',
+        'Patis',
+        'Varzelândia',
+        'Verdelândia',
+        'São João da Ponte'
+    ]
 
 # Abrir o arquivo Excel com a segunda coluna a ser concatenada
 DF_DATAS = pd.read_excel('São João da Ponte_revisado_final.xlsx')
@@ -64,7 +63,7 @@ dfSpei.columns = [convert_coordinates_to_negative(col) for col in dfSpei.columns
 result_dict = {}
 
 # Iterar sobre cada município e encontrar a coluna mais próxima
-for municipio, coords in find_cities_coordinates().items():
+for municipio, coords in find_cities_coordinates(CIDADES_A_PROCURAR).items():
     lat_municipio = coords['latitude']
     lon_municipio = coords['longitude']
     
