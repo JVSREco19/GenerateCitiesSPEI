@@ -60,10 +60,6 @@ def convert_to_negative(coord):
 dfSpei.columns = [convert_to_negative(col) for col in dfSpei.columns]
 
 
-# Função para calcular a distância Euclidiana entre duas coordenadas
-def euclidean_distance(coord1, coord2):
-    return np.sqrt((coord1[0] - coord2[0])**2 + (coord1[1] - coord2[1])**2)
-
 # Armazenar os resultados
 result_dict = {}
 
@@ -82,7 +78,8 @@ for municipio, coords in resultados.items():
         lon_col = float(parts[1])
         lat_col = float(parts[2])
         # Calcular a distância
-        distance = euclidean_distance((lat_municipio, lon_municipio), (lat_col, lon_col))
+        coordinates_euclidean_distance = lambda COORD1, COORD2 : np.sqrt((COORD1[0] - COORD2[0])**2 + (COORD1[1] - COORD2[1])**2)
+        distance = coordinates_euclidean_distance((lat_municipio, lon_municipio), (lat_col, lon_col))
         
         # Encontrar a coluna com a menor distância
         if distance < min_distance:
