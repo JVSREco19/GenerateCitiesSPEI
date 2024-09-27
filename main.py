@@ -78,7 +78,7 @@ for municipio, coords in find_cities_coordinates().items():
         lon_col = float(parts[1])
         lat_col = float(parts[2])
         # Calcular a distância
-        distance = euclidean_distance((lat_municipio, lon_municipio), (lat_col, lon_col))
+        distance = coordinates_euclidean_distance((lat_municipio, lon_municipio), (lat_col, lon_col))
         
         # Encontrar a coluna com a menor distância
         if distance < min_distance:
