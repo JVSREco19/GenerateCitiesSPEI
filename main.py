@@ -29,7 +29,7 @@ def find_cities_coordinates():
     CITIES_COORDINATES_DICT = {cidade.upper(): MUNICIPIOS_DICT.get(cidade.upper(), 'Cidade não encontrada') for cidade in CIDADES_A_PROCURAR}
     
     # Exibir os resultados
-    for cidade, coords in CITIES_COORDINATES.items():
+    for cidade, coords in CITIES_COORDINATES_DICT.items():
         print(f'{cidade}: {coords}')    
 
     return CITIES_COORDINATES_DICT
