@@ -34,18 +34,18 @@ def find_cities_coordinates():
 
     return CITIES_COORDINATES_DICT
 
-def find_nearest_city_coordinates(coords, dfSpei):
+def find_nearest_gauging_station(coords, dfSpei):
     """
-    Return the coordinates for the nearest city, given the coordinates of the city of interest.
+    Return the coordinates for the nearest gauging station, given the coordinates of the city of interest.
 
     Parameters
     ----------
     coords : the coordinates of the city of interest.
-    dfSpei : the dataframe in which to do the search. It has the coordinates of every city as column names.
+    dfSpei : the dataframe in which to do the search. It has the coordinates of every gauging station as column names.
 
     Returns
     -------
-    closest_col : the coordinates of the nearest city, that is, the name of the column whose coordinates are geographically the nearest ones to the city of interest.
+    closest_col : the coordinates of the gauging station geographically nearest to the city of interest.
 
     """
     lat_municipio = coords['latitude']
@@ -53,7 +53,7 @@ def find_nearest_city_coordinates(coords, dfSpei):
     
     # Converter colunas para coordenadas
     min_distance = float('inf')
-    closest_col = None
+    closest_col_name = None
 
     for col in dfSpei.columns:
         # Supondo o formato das coordenadas como 'X,lat,lon'
@@ -66,9 +66,9 @@ def find_nearest_city_coordinates(coords, dfSpei):
         # Encontrar a coluna com a menor distância
         if distance < min_distance:
             min_distance = distance
-            closest_col = col
+            closest_col_name = col
 
-    return closest_col
+    return closest_col_name
 
 def convert_coordinates_to_negative(COORD):
     # Divide a string em partes
@@ -98,7 +98,7 @@ dfSpei.columns = [convert_coordinates_to_negative(col) for col in dfSpei.columns
 
 result_dict = {}   
 for municipio, coords in find_cities_coordinates().items():
-    result_dict[municipio] = find_nearest_city_coordinates(coords, dfSpei)
+    result_dict[municipio] = find_nearest_gauging_station(coords, dfSpei)
 
 # Cria uma planilha para cada cidade com base na coluna mais próxima
 for cidade, coluna_proxima in result_dict.items():
