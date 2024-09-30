@@ -47,17 +47,31 @@ dfSpei = dfSpei.iloc[11:].reset_index(drop=True)
 
 print(dfSpei)
 # Função para converter as coordenadas em valores negativos
-def convert_to_negative(coord):
-    # Divide a string em partes
-    parts = coord.split(',')
-    # Pega a latitude e longitude
-    latitude = '-'+parts[1] + '.' + parts[2]
-    longitude = '-'+parts[4] + '.' + parts[5]
-    # Converte para negativos e retorna no formato original
-    return f'X,{float(latitude) },{float(longitude) }'
+def convert_coordinates_to_negative(COORD):
+    """
+    Return negative coordinates provided any coordinates.
+    For example, 'X,47,95,,19,55' will be converted to 'X,-47.95,-19.55'
 
+    Parameters
+    ----------
+    COORD : string
+        Any coordinates.
+
+    Returns
+    -------
+    str
+        The negative coordinates.
+
+    """
+    # Divide a string em partes
+    PARTS = COORD.split(',')
+    # Pega a latitude e longitude
+    LATITUDE  = '-' + PARTS[1] + '.' + PARTS[2]
+    LONGITUDE = '-' + PARTS[4] + '.' + PARTS[5]
+    # Converte para negativos e retorna no formato original
+    return f'X,{float(LATITUDE) },{float(LONGITUDE) }'
 # Aplicar a função em todas as colunas
-dfSpei.columns = [convert_to_negative(col) for col in dfSpei.columns]
+dfSpei.columns = [convert_coordinates_to_negative(col) for col in dfSpei.columns]
 
 
 # Função para calcular a distância Euclidiana entre duas coordenadas
