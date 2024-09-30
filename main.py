@@ -1,6 +1,19 @@
 import pandas as pd
 import numpy as np
 
+# Função para converter as coordenadas em valores negativos
+def convert_to_negative(coord):
+    # Divide a string em partes
+    parts = coord.split(',')
+    # Pega a latitude e longitude
+    latitude = '-'+parts[1] + '.' + parts[2]
+    longitude = '-'+parts[4] + '.' + parts[5]
+    # Converte para negativos e retorna no formato original
+    return f'X,{float(latitude) },{float(longitude) }'
+
+# Função para calcular a distância Euclidiana entre duas coordenadas
+def euclidean_distance(coord1, coord2):
+    return np.sqrt((coord1[0] - coord2[0])**2 + (coord1[1] - coord2[1])**2)
 
 # Lista de cidades para procurar
 cidades_procuradas = [
@@ -38,31 +51,10 @@ for cidade, coords in resultados.items():
     print(f'{cidade}: {coords}')
     
     
-# Abrir o arquivo CSV
-dfSpei = pd.read_csv("speiAll_final.csv",delimiter=';')
-
-
-# Remover as primeiras 11 linhas
-dfSpei = dfSpei.iloc[11:].reset_index(drop=True)
-
+# Abrir o arquivo CSV, remover as 11 primeiras linhas, e converter todos os nomes de colunas para números negativos
+dfSpei = pd.read_csv("speiAll_final.csv",delimiter=';').iloc[11:].reset_index(drop=True)
 print(dfSpei)
-# Função para converter as coordenadas em valores negativos
-def convert_to_negative(coord):
-    # Divide a string em partes
-    parts = coord.split(',')
-    # Pega a latitude e longitude
-    latitude = '-'+parts[1] + '.' + parts[2]
-    longitude = '-'+parts[4] + '.' + parts[5]
-    # Converte para negativos e retorna no formato original
-    return f'X,{float(latitude) },{float(longitude) }'
-
-# Aplicar a função em todas as colunas
-dfSpei.columns = [convert_to_negative(col) for col in dfSpei.columns]
-
-
-# Função para calcular a distância Euclidiana entre duas coordenadas
-def euclidean_distance(coord1, coord2):
-    return np.sqrt((coord1[0] - coord2[0])**2 + (coord1[1] - coord2[1])**2)
+dfSpei.columns = [convert_coordinates_to_negative(col) for col in dfSpei.columns]
 
 # Armazenar os resultados
 result_dict = {}
