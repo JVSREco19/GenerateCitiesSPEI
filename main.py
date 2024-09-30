@@ -34,7 +34,20 @@ def find_cities_coordinates():
 
     return CITIES_COORDINATES_DICT
 
-def find_nearest_city(municipio, coords, dfSpei):
+def find_nearest_city_coordinates(coords, dfSpei):
+    """
+    Return the coordinates for the nearest city, given the coordinates of the city of interest.
+
+    Parameters
+    ----------
+    coords : the coordinates of the city of interest.
+    dfSpei : the dataframe in which to do the search. It has the coordinates of every city as column names.
+
+    Returns
+    -------
+    closest_col : the coordinates of the nearest city, that is, the name of the column whose coordinates are geographically the nearest ones to the city of interest.
+
+    """
     lat_municipio = coords['latitude']
     lon_municipio = coords['longitude']
     
@@ -85,7 +98,7 @@ dfSpei.columns = [convert_coordinates_to_negative(col) for col in dfSpei.columns
 
 result_dict = {}   
 for municipio, coords in find_cities_coordinates().items():
-    result_dict[municipio] = find_nearest_city(municipio, coords, dfSpei)
+    result_dict[municipio] = find_nearest_city(coords, dfSpei)
 
 # Cria uma planilha para cada cidade com base na coluna mais próxima
 for cidade, coluna_proxima in result_dict.items():
