@@ -82,7 +82,6 @@ def convert_coordinates_to_negative(COORD):
 def coordinates_euclidean_distance(COORD1, COORD2):
     return np.sqrt((COORD1[0] - COORD2[0])**2 + (COORD1[1] - COORD2[1])**2)
 
-
 # Abrir o arquivo Excel com a segunda coluna a ser concatenada
 DF_DATAS = pd.read_excel('São João da Ponte_revisado_final.xlsx')
     
