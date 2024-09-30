@@ -2,6 +2,18 @@ import pandas as pd
 import numpy as np
 
 def find_cities_coordinates(CIDADES_A_PROCURAR):
+    """
+    Return the cities' coordinates given their names.
+
+    Parameters
+    ----------
+    CIDADES_A_PROCURAR : list of city names to search for
+
+    Returns
+    -------
+    CITIES_COORDINATES_DICT : dictionary of cities and their corresponding coordinates (longitude and latitude)
+
+    """ 
     DF_COORDS = pd.read_excel('CoordenadasMunicipios.xlsx')
     
     MUNICIPIOS_DICT = {
