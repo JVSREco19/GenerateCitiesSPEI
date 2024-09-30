@@ -30,7 +30,8 @@ def find_cities_coordinates(CIDADES_A_PROCURAR):
     # Exibir os resultados
     for cidade, coords in CITIES_COORDINATES_DICT.items():
         print(f'{cidade}: {coords}')    
-
+    print()
+    
     return CITIES_COORDINATES_DICT
 
 def convert_coordinates_to_negative(COORD):
