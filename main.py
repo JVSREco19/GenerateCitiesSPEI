@@ -7,11 +7,11 @@ def find_cities_coordinates(CIDADES_A_PROCURAR):
 
     Parameters
     ----------
-    CIDADES_A_PROCURAR : list of city names to search for
+    CIDADES_A_PROCURAR : list of city names to search for on DF_COORDS.
 
     Returns
     -------
-    CITIES_COORDINATES_DICT : dictionary of cities and their corresponding coordinates (longitude and latitude)
+    CITIES_COORDINATES_DICT : dictionary of cities and their corresponding coordinates (longitude and latitude). The city names are the keys, and their coordinates are the values. The coordinates, in turn, are a subdictionary composed of 'longitude' and 'latitude' as keys, and the numbers as values.
 
     """ 
     DF_COORDS = pd.read_excel('CoordenadasMunicipios.xlsx')
