@@ -98,7 +98,7 @@ df_revisado = pd.read_excel('São João da Ponte_revisado_final.xlsx')
 # Cria uma planilha para cada cidade com base na coluna mais próxima
 for cidade, coluna_proxima in result_dict.items():
     if coluna_proxima in dfSpei.columns:
-        df_city = dfSpei[[coluna_proxima]]
+        df_city = dfSpei[[coluna_proxima]].copy()
         
         # Adicionar a coluna 'Data' do DataFrame revisado
         df_city['Data'] = df_revisado['Data'].reset_index(drop=True)
