@@ -16,7 +16,7 @@ def euclidean_distance(coord1, coord2):
     return np.sqrt((coord1[0] - coord2[0])**2 + (coord1[1] - coord2[1])**2)
 
 # Lista de cidades para procurar
-cidades_procuradas = [
+CIDADES_A_PROCURAR = [
     'Capitão Enéas',
     'Ibiracatu',
     'Janaúba',
@@ -29,28 +29,28 @@ cidades_procuradas = [
     'São João da Ponte'
 ]
 
-
 # Abrir o arquivo Excel
-dfCoords = pd.read_excel('CoordenadasMunicipios.xlsx')
+DF_COORDS = pd.read_excel('CoordenadasMunicipios.xlsx')
+
+# Abrir o arquivo Excel com a segunda coluna a ser concatenada
+DF_DATAS = pd.read_excel('São João da Ponte_revisado_final.xlsx')
 
 # Criar um dicionário com os nomes dos municípios como chaves e suas coordenadas como valores
-municipios_dict = {
+MUNICIPIOS_DICT = {
     row['NOME_MUNICIPIO']: {
         'longitude': round(row['LONGITUDE'], 2), 
         'latitude': round(row['LATITUDE'], 2)
     }
-    for _, row in dfCoords.iterrows()
+    for _, row in DF_COORDS.iterrows()
 }
 
-
 # Encontrar as coordenadas das cidades procuradas e deixar os nomes em caixa alta
-resultados = {cidade.upper(): municipios_dict.get(cidade.upper(), 'Cidade não encontrada') for cidade in cidades_procuradas}
+RESULTADOS = {cidade.upper(): MUNICIPIOS_DICT.get(cidade.upper(), 'Cidade não encontrada') for cidade in CIDADES_A_PROCURAR}
 
 # Exibir os resultados
-for cidade, coords in resultados.items():
+for cidade, coords in RESULTADOS.items():
     print(f'{cidade}: {coords}')
-    
-    
+     
 # Abrir o arquivo CSV, remover as 11 primeiras linhas, e converter todos os nomes de colunas para números negativos
 dfSpei = pd.read_csv("speiAll_final.csv",delimiter=';').iloc[11:].reset_index(drop=True)
 print(dfSpei)
@@ -60,7 +60,7 @@ dfSpei.columns = [convert_coordinates_to_negative(col) for col in dfSpei.columns
 result_dict = {}
 
 # Iterar sobre cada município e encontrar a coluna mais próxima
-for municipio, coords in resultados.items():
+for municipio, coords in RESULTADOS.items():
     lat_municipio = coords['latitude']
     lon_municipio = coords['longitude']
     
@@ -84,16 +84,13 @@ for municipio, coords in resultados.items():
     # Adicionar o resultado ao dicionário
     result_dict[municipio] = closest_col
 
-# Abrir o arquivo Excel com a segunda coluna a ser concatenada
-df_revisado = pd.read_excel('São João da Ponte_revisado_final.xlsx')
-
 # Cria uma planilha para cada cidade com base na coluna mais próxima
 for cidade, coluna_proxima in result_dict.items():
     if coluna_proxima in dfSpei.columns:
-        df_city = dfSpei[[coluna_proxima]]
+        df_city = dfSpei[[coluna_proxima]].copy()
         
         # Adicionar a coluna 'Data' do DataFrame revisado
-        df_city['Data'] = df_revisado['Data'].reset_index(drop=True)
+        df_city['Data'] = DF_DATAS['Data'].reset_index(drop=True)
         
         # Renomear a primeira coluna para 'Series 1'
         df_city = df_city.rename(columns={df_city.columns[0]: 'Series 1'})
@@ -108,5 +105,3 @@ for cidade, coluna_proxima in result_dict.items():
         print(f'Salvo {cidade}.xlsx')
     else:
         print(f'Coluna para {cidade} não encontrada.')
-
-
