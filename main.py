@@ -73,7 +73,7 @@ print(dfSpei)
 dfSpei.columns = [convert_coordinates_to_negative(col) for col in dfSpei.columns]
 
 # Armazenar os resultados
-result_dict = {}
+nearest_coordinates_dict = {}
 
 # Iterar sobre cada município e encontrar a coluna mais próxima
 for municipio, coords in find_cities_coordinates(CIDADES_A_PROCURAR).items():
@@ -98,10 +98,10 @@ for municipio, coords in find_cities_coordinates(CIDADES_A_PROCURAR).items():
             closest_col = col
     
     # Adicionar o resultado ao dicionário
-    result_dict[municipio] = closest_col
+    nearest_coordinates_dict[municipio] = closest_col
 
 # Cria uma planilha para cada cidade com base na coluna mais próxima
-for cidade, coluna_proxima in result_dict.items():
+for cidade, coluna_proxima in nearest_coordinates_dict.items():
     if coluna_proxima in dfSpei.columns:
         df_city = dfSpei[[coluna_proxima]].copy()
         
