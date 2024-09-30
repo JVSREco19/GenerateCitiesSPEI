@@ -1,20 +1,23 @@
 import pandas as pd
 import numpy as np
 
-def find_cities_coordinates(CIDADES_A_PROCURAR):
+def find_cities_coordinates(CIDADES_A_PROCURAR, DF_COORDS):
     """
     Return the cities' coordinates given their names.
 
     Parameters
     ----------
     CIDADES_A_PROCURAR : list of city names to search for on DF_COORDS.
+    DF_COORDS          : a xlsx file that has info about all Minas Gerais cities -- name, longitude and latitude.
 
     Returns
     -------
-    CITIES_COORDINATES_DICT : dictionary of cities and their corresponding coordinates (longitude and latitude). The city names are the keys, and their coordinates are the values. The coordinates, in turn, are a subdictionary composed of 'longitude' and 'latitude' as keys, and the numbers as values.
+    CITIES_COORDINATES_DICT : dictionary of cities and their corresponding coordinates (longitude and latitude).
+                            The city names are the keys, and their coordinates are the values.
+                            The coordinates, in turn, are a subdictionary composed of 'longitude' and 'latitude' as keys, and the numbers as values.
 
-    """ 
-    DF_COORDS = pd.read_excel('CoordenadasMunicipios.xlsx')
+    """
+    DF_COORDS = pd.read_excel(DF_COORDS)
     
     MUNICIPIOS_DICT = {
         row['NOME_MUNICIPIO']: {
@@ -76,7 +79,7 @@ dfSpei.columns = [convert_coordinates_to_negative(col) for col in dfSpei.columns
 nearest_coordinates_dict = {}
 
 # Iterar sobre cada município e encontrar a coluna mais próxima
-for municipio, coords in find_cities_coordinates(CIDADES_A_PROCURAR).items():
+for municipio, coords in find_cities_coordinates(CIDADES_A_PROCURAR, 'CoordenadasMunicipios.xlsx').items():
     lat_municipio = coords['latitude']
     lon_municipio = coords['longitude']
     
