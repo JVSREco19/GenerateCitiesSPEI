@@ -17,7 +17,7 @@ def find_cities_coordinates(CIDADES_A_PROCURAR, DF_COORDS):
                             The coordinates, in turn, are a subdictionary composed of 'longitude' and 'latitude' as keys, and the numbers as values.
 
     """
-    DF_COORDS = pd.read_excel(DF_COORDS)
+    DF_COORDS = pd.read_excel(DF_COORDS, usecols=['NOME_MUNICIPIO', 'LONGITUDE', 'LATITUDE'])
     
     MUNICIPIOS_DICT = {
         row['NOME_MUNICIPIO']: {
