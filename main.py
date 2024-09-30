@@ -59,6 +59,27 @@ def find_nearest_city(municipio, coords, dfSpei):
     return closest_col
 
 def save_city_SPEI_on_xlsx(cidade, coluna_proxima, dfSpei, DF_DATAS):
+    """
+    Creates a 2-column xlsx file for a city, with the first column ('Series 1') being the SPEI values, and the second column ('Data') being the corresponding dates of measurement of the SPEI.
+
+    Parameters
+    ----------
+    cidade : string
+        The city name.
+    coluna_proxima : dictionary
+        The city's longitude and latitude.
+    dfSpei : dataframe
+        The dataframe from which the SPEI values will be extracted.
+    DF_DATAS : dataframe
+        The dataframe from which the dates of measurement will be extracted.
+
+    Returns
+    -------
+    bool
+        True if the file is created successfully.
+        False if the city's column is not found.
+
+    """
     if coluna_proxima in dfSpei.columns:
         df_city = dfSpei[[coluna_proxima]].copy()
         
