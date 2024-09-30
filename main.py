@@ -55,7 +55,6 @@ def find_nearest_city(municipio, coords, dfSpei):
         if distance < min_distance:
             min_distance = distance
             closest_col = col
-
     return closest_col
 
 def save_city_SPEI_on_xlsx(cidade, coluna_proxima, dfSpei, DF_DATAS):
