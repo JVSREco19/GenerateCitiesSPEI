@@ -30,8 +30,8 @@ city_coordinates = city_coordinates[ city_coordinates.index.astype(str).str.star
 found_cities = {}
 for sought_city in cidades_a_procurar:
     found_cities[sought_city] = {
-        "LONGITUDE" : float(city_coordinates.loc[sought_city]['LONGITUDE']),
-        "LATITUDE"  : float(city_coordinates.loc[sought_city]['LATITUDE'])
+        "longitude" : float(city_coordinates.loc[sought_city]['LONGITUDE']),
+        "latitude"  : float(city_coordinates.loc[sought_city]['LATITUDE'])
     }
 
 # Exibir os resultados
