@@ -3,7 +3,7 @@ import numpy as np
 
 
 # Lista de cidades para procurar
-CIDADES_A_PROCURAR = [
+cidades_a_procurar = [
     'Capitão Enéas',
     'Ibiracatu',
     'Janaúba',
@@ -15,27 +15,27 @@ CIDADES_A_PROCURAR = [
     'Verdelândia',
     'São João da Ponte'
 ]
-
-# Abrir o arquivo Excel
-DF_COORDS = pd.read_excel('CoordenadasMunicipios.xlsx')
+cidades_a_procurar = [cidade.upper() for cidade in cidades_a_procurar]
 
 # Abrir o arquivo Excel com a segunda coluna a ser concatenada
 DF_DATAS = pd.read_excel('São João da Ponte_revisado_final.xlsx')
 
-# Criar um dicionário com os nomes dos municípios como chaves e suas coordenadas como valores
-MUNICIPIOS_DICT = {
-    row['NOME_MUNICIPIO']: {
-        'longitude': round(row['LONGITUDE'], 2), 
-        'latitude': round(row['LATITUDE'], 2)
-    }
-    for _, row in DF_COORDS.iterrows()
-}
+# Filtrar para apenas os municipios de Minas Gerais (codigos iniciados com 31)
+# Minas Gerais tem 853 municipios.
+city_coordinates = pd.read_excel('CoordenadasMunicipios.xlsx', index_col='GEOCODIGO_MUNICIPIO')
+city_coordinates = city_coordinates[ city_coordinates.index.astype(str).str.startswith('31') ].set_index('NOME_MUNICIPIO')
 
+# Criar um dicionário com os nomes dos municípios como chaves e suas coordenadas como valores
 # Encontrar as coordenadas das cidades procuradas e deixar os nomes em caixa alta
-RESULTADOS = {cidade.upper(): MUNICIPIOS_DICT.get(cidade.upper(), 'Cidade não encontrada') for cidade in CIDADES_A_PROCURAR}
+found_cities = {}
+for sought_city in cidades_a_procurar:
+    found_cities[sought_city] = {
+        "longitude" : float(city_coordinates.loc[sought_city]['LONGITUDE']),
+        "latitude"  : float(city_coordinates.loc[sought_city]['LATITUDE'])
+    }
 
 # Exibir os resultados
-for cidade, coords in RESULTADOS.items():
+for cidade, coords in found_cities.items():
     print(f'{cidade}: {coords}')
     
 # Abrir o arquivo CSV
