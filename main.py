@@ -16,15 +16,13 @@ CIDADES_A_PROCURAR = [
     'São João da Ponte'
 ]
 
-# Abrir o arquivo Excel
-DF_COORDS = pd.read_excel('CoordenadasMunicipios.xlsx')
+# Abrir o arquivo Excel com a segunda coluna a ser concatenada
+DF_DATAS = pd.read_excel('São João da Ponte_revisado_final.xlsx')
 
 # Filtrar para apenas os municipios de Minas Gerais (codigos iniciados com 31)
 # Minas Gerais tem 853 municipios.
-DF_COORDS_MG = DF_COORDS[ DF_COORDS['GEOCODIGO_MUNICIPIO'].astype(str).str.startswith('31') ]
-
-# Abrir o arquivo Excel com a segunda coluna a ser concatenada
-DF_DATAS = pd.read_excel('São João da Ponte_revisado_final.xlsx')
+city_coordinates = pd.read_excel('CoordenadasMunicipios.xlsx', index_col='GEOCODIGO_MUNICIPIO')
+city_coordinates = city_coordinates[ city_coordinates.index.astype(str).str.startswith('31') ].set_index('NOME_MUNICIPIO')
 
 # Criar um dicionário com os nomes dos municípios como chaves e suas coordenadas como valores
 MUNICIPIOS_DICT = {
@@ -32,7 +30,7 @@ MUNICIPIOS_DICT = {
         'longitude': round(row['LONGITUDE'], 2), 
         'latitude': round(row['LATITUDE'], 2)
     }
-    for _, row in DF_COORDS_MG.iterrows()
+    for _, row in city_coordinates.iterrows()
 }
 
 # Encontrar as coordenadas das cidades procuradas e deixar os nomes em caixa alta
