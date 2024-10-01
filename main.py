@@ -76,7 +76,7 @@ for municipio, coords in RESULTADOS.items():
     
     for col in dfSpei.columns:
         # Supondo o formato das coordenadas como 'X,lon,lat'
-        (lon_col, lat_col) = map(float, column.lstrip("X,").split(',') )
+        (lon_col, lat_col) = map(float, col.lstrip("X,").split(',') )
         # Calcular a distância
         distance = euclidean_distance((lat_municipio, lon_municipio), (lat_col, lon_col))
         
