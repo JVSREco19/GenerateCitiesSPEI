@@ -1,21 +1,23 @@
 import pandas as pd
 import numpy as np
 
-def find_cities_coordinates():
-    CIDADES_A_PROCURAR = [
-        'Capitão Enéas',
-        'Ibiracatu',
-        'Janaúba',
-        'Japonvar',
-        'Lontra',
-        'Montes Claros',
-        'Patis',
-        'Varzelândia',
-        'Verdelândia',
-        'São João da Ponte'
-    ]
-    
-    DF_COORDS = pd.read_excel('CoordenadasMunicipios.xlsx')
+def find_cities_coordinates(CIDADES_A_PROCURAR, DF_COORDS):
+    """
+    Return the cities' coordinates given their names.
+
+    Parameters
+    ----------
+    CIDADES_A_PROCURAR : list of city names to search for on DF_COORDS.
+    DF_COORDS          : a xlsx file that has info about all Minas Gerais cities -- name, longitude and latitude.
+
+    Returns
+    -------
+    CITIES_COORDINATES_DICT : dictionary of cities and their corresponding coordinates (longitude and latitude).
+                            The city names are the keys, and their coordinates are the values.
+                            The coordinates, in turn, are a subdictionary composed of 'longitude' and 'latitude' as keys, and the numbers as values.
+
+    """
+    DF_COORDS = pd.read_excel(DF_COORDS, usecols=['NOME_MUNICIPIO', 'LONGITUDE', 'LATITUDE'])
     
     MUNICIPIOS_DICT = {
         row['NOME_MUNICIPIO']: {
@@ -24,7 +26,7 @@ def find_cities_coordinates():
         }
         for _, row in DF_COORDS.iterrows()
     }
-    
+   
     # Encontrar as coordenadas das cidades procuradas e deixar os nomes em caixa alta
     CITIES_COORDINATES_DICT = {cidade.upper(): MUNICIPIOS_DICT.get(cidade.upper(), 'Cidade não encontrada') for cidade in CIDADES_A_PROCURAR}
     
@@ -100,7 +102,7 @@ for municipio, coords in find_cities_coordinates().items():
     result_dict[municipio] = find_nearest_gauging_station(coords, dfSpei)
 
 # Cria uma planilha para cada cidade com base na coluna mais próxima
-for cidade, coluna_proxima in result_dict.items():
+for cidade, coluna_proxima in nearest_coordinates_dict.items():
     if coluna_proxima in dfSpei.columns:
         df_city = dfSpei[[coluna_proxima]].copy()
         
