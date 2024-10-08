@@ -37,6 +37,73 @@ def find_cities_coordinates(CIDADES_A_PROCURAR, DF_COORDS):
     
     return CITIES_COORDINATES_DICT
 
+def convert_coordinates_to_negative(COORD):
+    # Divide a string em partes
+    PARTS = COORD.split(',')
+    # Pega a latitude e longitude
+    LATITUDE  = '-' + PARTS[1] + '.' + PARTS[2]
+    LONGITUDE = '-' + PARTS[4] + '.' + PARTS[5]
+    # Converte para negativos e retorna no formato original
+    return f'X,{float(LATITUDE) },{float(LONGITUDE) }'
+
+def coordinates_euclidean_distance(COORD1, COORD2):
+    return np.sqrt((COORD1[0] - COORD2[0])**2 + (COORD1[1] - COORD2[1])**2)
+
+def find_cities_coordinates():
+    CIDADES_A_PROCURAR = [
+        'Capitão Enéas',
+        'Ibiracatu',
+        'Janaúba',
+        'Japonvar',
+        'Lontra',
+        'Montes Claros',
+        'Patis',
+        'Varzelândia',
+        'Verdelândia',
+        'São João da Ponte'
+    ]
+
+    DF_COORDS = pd.read_excel('CoordenadasMunicipios.xlsx')
+
+    MUNICIPIOS_DICT = {
+        row['NOME_MUNICIPIO']: {
+            'longitude': round(row['LONGITUDE'], 2), 
+            'latitude': round(row['LATITUDE'], 2)
+        }
+        for _, row in DF_COORDS.iterrows()
+    }
+
+    # Encontrar as coordenadas das cidades procuradas e deixar os nomes em caixa alta
+    CITIES_COORDINATES_DICT = {cidade.upper(): MUNICIPIOS_DICT.get(cidade.upper(), 'Cidade não encontrada') for cidade in CIDADES_A_PROCURAR}
+
+    # Exibir os resultados
+    for cidade, coords in CITIES_COORDINATES_DICT.items():
+        print(f'{cidade}: {coords}')    
+
+    return CITIES_COORDINATES_DICT
+
+def find_nearest_city(municipio, coords, dfSpei):
+    lat_municipio = coords['latitude']
+    lon_municipio = coords['longitude']
+
+    # Converter colunas para coordenadas
+    min_distance = float('inf')
+    closest_col = None
+
+    for col in dfSpei.columns:
+        # Supondo o formato das coordenadas como 'X,lat,lon'
+        parts = col.split(',')
+        lon_col = float(parts[1])
+        lat_col = float(parts[2])
+        # Calcular a distância
+        distance = coordinates_euclidean_distance((lat_municipio, lon_municipio), (lat_col, lon_col))
+
+        # Encontrar a coluna com a menor distância
+        if distance < min_distance:
+            min_distance = distance
+            closest_col = col
+    return closest_col
+
 def save_city_SPEI_on_xlsx(cidade, coluna_proxima, dfSpei, DF_DATAS):
     """
     Creates a 2-column xlsx file for a city, with the first column ('Series 1') being the SPEI values, and the second column ('Data') being the corresponding dates of measurement of the SPEI.
