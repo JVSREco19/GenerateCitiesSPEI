@@ -49,7 +49,8 @@ def convert_coordinates_to_negative(COORD):
 def coordinates_euclidean_distance(COORD1, COORD2):
     return np.sqrt((COORD1[0] - COORD2[0])**2 + (COORD1[1] - COORD2[1])**2)
 
-CIDADES_A_PROCURAR = [
+def find_cities_coordinates():
+    CIDADES_A_PROCURAR = [
         'Capitão Enéas',
         'Ibiracatu',
         'Janaúba',
@@ -62,31 +63,33 @@ CIDADES_A_PROCURAR = [
         'São João da Ponte'
     ]
 
-# Abrir o arquivo Excel com a segunda coluna a ser concatenada
-DF_DATAS = pd.read_excel('São João da Ponte_revisado_final.xlsx')
-    
-# Abrir o arquivo CSV
-dfSpei = pd.read_csv("speiAll_final.csv",delimiter=';')
+    DF_COORDS = pd.read_excel('CoordenadasMunicipios.xlsx')
 
-# Remover as primeiras 11 linhas
-dfSpei = dfSpei.iloc[11:].reset_index(drop=True)
-print(dfSpei)
+    MUNICIPIOS_DICT = {
+        row['NOME_MUNICIPIO']: {
+            'longitude': round(row['LONGITUDE'], 2), 
+            'latitude': round(row['LATITUDE'], 2)
+        }
+        for _, row in DF_COORDS.iterrows()
+    }
 
-# Aplicar função em todas as colunas
-dfSpei.columns = [convert_coordinates_to_negative(col) for col in dfSpei.columns]
+    # Encontrar as coordenadas das cidades procuradas e deixar os nomes em caixa alta
+    CITIES_COORDINATES_DICT = {cidade.upper(): MUNICIPIOS_DICT.get(cidade.upper(), 'Cidade não encontrada') for cidade in CIDADES_A_PROCURAR}
 
-# Armazenar os resultados
-nearest_coordinates_dict = {}
+    # Exibir os resultados
+    for cidade, coords in CITIES_COORDINATES_DICT.items():
+        print(f'{cidade}: {coords}')    
 
-# Iterar sobre cada município e encontrar a coluna mais próxima
-for municipio, coords in find_cities_coordinates(CIDADES_A_PROCURAR, 'CoordenadasMunicipios.xlsx').items():
+    return CITIES_COORDINATES_DICT
+
+def find_nearest_city(municipio, coords, dfSpei):
     lat_municipio = coords['latitude']
     lon_municipio = coords['longitude']
-    
+
     # Converter colunas para coordenadas
     min_distance = float('inf')
     closest_col = None
-    
+
     for col in dfSpei.columns:
         # Supondo o formato das coordenadas como 'X,lat,lon'
         parts = col.split(',')
@@ -94,17 +97,35 @@ for municipio, coords in find_cities_coordinates(CIDADES_A_PROCURAR, 'Coordenada
         lat_col = float(parts[2])
         # Calcular a distância
         distance = coordinates_euclidean_distance((lat_municipio, lon_municipio), (lat_col, lon_col))
-        
+
         # Encontrar a coluna com a menor distância
         if distance < min_distance:
             min_distance = distance
             closest_col = col
-    
-    # Adicionar o resultado ao dicionário
-    nearest_coordinates_dict[municipio] = closest_col
+    return closest_col
 
-# Cria uma planilha para cada cidade com base na coluna mais próxima
-for cidade, coluna_proxima in nearest_coordinates_dict.items():
+def save_city_SPEI_on_xlsx(cidade, coluna_proxima, dfSpei, DF_DATAS):
+    """
+    Creates a 2-column xlsx file for a city, with the first column ('Series 1') being the SPEI values, and the second column ('Data') being the corresponding dates of measurement of the SPEI.
+
+    Parameters
+    ----------
+    cidade : string
+        The city name.
+    coluna_proxima : dictionary
+        The city's longitude and latitude.
+    dfSpei : dataframe
+        The dataframe from which the SPEI values will be extracted.
+    DF_DATAS : dataframe
+        The dataframe from which the dates of measurement will be extracted.
+
+    Returns
+    -------
+    bool
+        True if the file is created successfully.
+        False if the city's column is not found.
+
+    """
     if coluna_proxima in dfSpei.columns:
         df_city = dfSpei[[coluna_proxima]].copy()
         
@@ -124,3 +145,36 @@ for cidade, coluna_proxima in nearest_coordinates_dict.items():
         print(f'Salvo {cidade}.xlsx')
     else:
         print(f'Coluna para {cidade} não encontrada.')
+  
+def convert_coordinates_to_negative(COORD):
+    # Divide a string em partes
+    PARTS = COORD.split(',')
+    # Pega a latitude e longitude
+    LATITUDE  = '-' + PARTS[1] + '.' + PARTS[2]
+    LONGITUDE = '-' + PARTS[4] + '.' + PARTS[5]
+    # Converte para negativos e retorna no formato original
+    return f'X,{float(LATITUDE) },{float(LONGITUDE) }'
+
+def coordinates_euclidean_distance(COORD1, COORD2):
+    return np.sqrt((COORD1[0] - COORD2[0])**2 + (COORD1[1] - COORD2[1])**2)
+
+
+# Abrir o arquivo Excel com a segunda coluna a ser concatenada
+DF_DATAS = pd.read_excel('São João da Ponte_revisado_final.xlsx')
+    
+# Abrir o arquivo CSV
+dfSpei = pd.read_csv("speiAll_final.csv",delimiter=';')
+
+# Remover as primeiras 11 linhas
+dfSpei = dfSpei.iloc[11:].reset_index(drop=True)
+print(dfSpei)
+
+# Aplicar função em todas as colunas
+dfSpei.columns = [convert_coordinates_to_negative(col) for col in dfSpei.columns]
+
+result_dict = {}   
+for municipio, coords in find_cities_coordinates().items():
+    result_dict[municipio] = find_nearest_city(municipio, coords, dfSpei)
+
+for cidade, coluna_proxima in result_dict.items():
+    save_city_SPEI_on_xlsx(cidade, coluna_proxima, dfSpei, DF_DATAS)
