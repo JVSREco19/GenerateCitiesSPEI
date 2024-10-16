@@ -72,7 +72,24 @@ def find_nearest_gauging_station(coords, dfSpei):
 
     return closest_col_name
 
+print(dfSpei)
+# Função para converter as coordenadas em valores negativos
 def convert_coordinates_to_negative(COORD):
+    """
+    Return negative coordinates provided any coordinates.
+    For example, 'X,47,95,,19,55' will be converted to 'X,-47.95,-19.55'
+
+    Parameters
+    ----------
+    COORD : string
+        Any coordinates.
+
+    Returns
+    -------
+    str
+        The negative coordinates.
+
+    """
     # Divide a string em partes
     PARTS = COORD.split(',')
     # Pega a latitude e longitude
@@ -81,32 +98,8 @@ def convert_coordinates_to_negative(COORD):
     # Converte para negativos e retorna no formato original
     return f'X,{float(LATITUDE) },{float(LONGITUDE) }'
 
-def coordinates_euclidean_distance(COORD1, COORD2):
-    return np.sqrt((COORD1[0] - COORD2[0])**2 + (COORD1[1] - COORD2[1])**2)
-
-def find_cities_coordinates():
-    CIDADES_A_PROCURAR = [
-        'Capitão Enéas',
-        'Ibiracatu',
-        'Janaúba',
-        'Japonvar',
-        'Lontra',
-        'Montes Claros',
-        'Patis',
-        'Varzelândia',
-        'Verdelândia',
-        'São João da Ponte'
-    ]
-
-    DF_COORDS = pd.read_excel('CoordenadasMunicipios.xlsx')
-
-    MUNICIPIOS_DICT = {
-        row['NOME_MUNICIPIO']: {
-            'longitude': round(row['LONGITUDE'], 2), 
-            'latitude': round(row['LATITUDE'], 2)
-        }
-        for _, row in DF_COORDS.iterrows()
-    }
+# Aplicar a função em todas as colunas
+dfSpei.columns = [convert_coordinates_to_negative(col) for col in dfSpei.columns]
 
     # Encontrar as coordenadas das cidades procuradas e deixar os nomes em caixa alta
     CITIES_COORDINATES_DICT = {cidade.upper(): MUNICIPIOS_DICT.get(cidade.upper(), 'Cidade não encontrada') for cidade in CIDADES_A_PROCURAR}
