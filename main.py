@@ -112,49 +112,48 @@ def find_nearest_measurement_locations(df_cities_coordinates, df_SPEI):
     
     return df_nearest_measurement_locations
 
-def save_city_SPEI_on_xlsx(cidade, coluna_proxima, dfSpei, DF_DATAS):
+def save_cities_SPEI_on_xlsx(df_nearest_measurement_locations, df_SPEI, DF_DATAS):
     """
-    Creates a 2-column xlsx file for a city, with the first column ('Series 1') being the SPEI values, and the second column ('Data') being the corresponding dates of measurement of the SPEI.
+    Creates a 2-column xlsx file for the each city, with the first column ('Series 1') being the SPEI values, and the second column ('Data') being the corresponding dates of measurement of the SPEI.
 
     Parameters
     ----------
-    cidade : string
-        The city name.
-    coluna_proxima : dictionary
-        The city's longitude and latitude.
-    dfSpei : dataframe
+    df_nearest_measurement_locations : dataframe
+        A dataframe composed of just the sought city names and the coordinates of the corresponding nearest measurement location.
+        The city names are index labels (NOME_MUNICIPIO) and the LONGITUDE and LATITUDE are the column names.
+    df_SPEI : dataframe
         The dataframe from which the SPEI values will be extracted.
     DF_DATAS : dataframe
         The dataframe from which the dates of measurement will be extracted.
 
     Returns
     -------
-    bool
-        True if the file is created successfully.
-        False if the city's column is not found.
+    None.
 
     """
-    if coluna_proxima in dfSpei.columns:
-        df_city = dfSpei[[coluna_proxima]].copy()
-        
-        # Adicionar a coluna 'Data' do DataFrame revisado
-        df_city['Data'] = DF_DATAS['Data'].reset_index(drop=True)
-        
-        # Renomear a primeira coluna para 'Series 1'
-        df_city = df_city.rename(columns={df_city.columns[0]: 'Series 1'})
-        
-        # Converter a primeira coluna para float e a segunda para datetime
-        # Converter a primeira coluna para float (substituir vírgulas por pontos)
-        df_city['Series 1'] = df_city['Series 1'].str.replace(',', '.').astype(float)
-        df_city['Data'] = pd.to_datetime(df_city['Data'], errors='coerce')
-        
-        # Salva em um arquivo Excel
-        df_city.to_excel(f'./Data/{cidade}.xlsx', index=False)
-        print(f'Salvo {cidade}.xlsx')
-        return True
-    else:
-        print(f'Coluna para {cidade} não encontrada.')
-        return False
+    for city in df_nearest_measurement_locations.index:
+        # Rebuilding the coordinates from the dataframe columns:
+        nearest_column = ','.join( [ 'X', str(df_nearest_measurement_locations.loc[city, 'LONGITUDE']), str(df_nearest_measurement_locations.loc[city, 'LATITUDE']) ] )
+    
+        if nearest_column in df_SPEI.columns:
+            df_city = df_SPEI[[nearest_column]].copy()
+            
+            # Adicionar a coluna 'Data' do DataFrame revisado
+            df_city['Data'] = DF_DATAS['Data'].reset_index(drop=True)
+            
+            # Renomear a primeira coluna para 'Series 1'
+            df_city = df_city.rename(columns={df_city.columns[0]: 'Series 1'})
+            
+            # Converter a primeira coluna para float e a segunda para datetime
+            # Converter a primeira coluna para float (substituir vírgulas por pontos)
+            df_city['Series 1'] = df_city['Series 1'].str.replace(',', '.').astype(float)
+            df_city['Data'] = pd.to_datetime(df_city['Data'], errors='coerce')
+            
+            # Salva em um arquivo Excel
+            df_city.to_excel(f'./Data/{city}.xlsx', index=False)
+            print(f'Salvo {city}.xlsx')
+        else:
+            print(f'Coluna para {city} não encontrada.')
 
 
 # Abrir o arquivo Excel com a segunda coluna a ser concatenada
@@ -173,8 +172,5 @@ print(df_cities_coordinates)
 df_nearest_measurement_locations = find_nearest_measurement_locations(df_cities_coordinates, df_SPEI)
 print(df_nearest_measurement_locations)
 
-for city in df_nearest_measurement_locations.index:
-    # Rebuilding the coordinates from the dataframe columns:
-    nearest_column = ','.join( [ 'X', str(df_nearest_measurement_locations.loc[city, 'LONGITUDE']), str(df_nearest_measurement_locations.loc[city, 'LATITUDE']) ] )    
-    
-    save_city_SPEI_on_xlsx(city, nearest_column, df_SPEI, DF_DATAS)
+# Create xlsx files for each city, containing the corresponding SPEI series:
+save_cities_SPEI_on_xlsx(df_nearest_measurement_locations, df_SPEI, DF_DATAS)
