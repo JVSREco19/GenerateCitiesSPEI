@@ -26,16 +26,51 @@ def find_cities_coordinates(CIDADES_A_PROCURAR, DF_COORDS):
         }
         for _, row in DF_COORDS.iterrows()
     }
-    
+   
     # Encontrar as coordenadas das cidades procuradas e deixar os nomes em caixa alta
     CITIES_COORDINATES_DICT = {cidade.upper(): MUNICIPIOS_DICT.get(cidade.upper(), 'Cidade não encontrada') for cidade in CIDADES_A_PROCURAR}
     
     # Exibir os resultados
     for cidade, coords in CITIES_COORDINATES_DICT.items():
         print(f'{cidade}: {coords}')    
-    print()
-    
+
     return CITIES_COORDINATES_DICT
+
+def find_nearest_gauging_station(coords, dfSpei):
+    """
+    Return the coordinates for the nearest gauging station, given the coordinates of the city of interest.
+
+    Parameters
+    ----------
+    coords : the coordinates of the city of interest.
+    dfSpei : the dataframe in which to do the search. It has the coordinates of every gauging station as column names.
+
+    Returns
+    -------
+    closest_col : the coordinates of the gauging station geographically nearest to the city of interest.
+
+    """
+    lat_municipio = coords['latitude']
+    lon_municipio = coords['longitude']
+    
+    # Converter colunas para coordenadas
+    min_distance = float('inf')
+    closest_col_name = None
+
+    for col in dfSpei.columns:
+        # Supondo o formato das coordenadas como 'X,lat,lon'
+        parts = col.split(',')
+        lon_col = float(parts[1])
+        lat_col = float(parts[2])
+        # Calcular a distância
+        distance = coordinates_euclidean_distance((lat_municipio, lon_municipio), (lat_col, lon_col))
+        
+        # Encontrar a coluna com a menor distância
+        if distance < min_distance:
+            min_distance = distance
+            closest_col_name = col
+
+    return closest_col_name
 
 def convert_coordinates_to_negative(COORD):
     # Divide a string em partes
