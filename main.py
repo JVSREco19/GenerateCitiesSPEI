@@ -1,6 +1,50 @@
 import pandas as pd
 import numpy as np
 
+# Lista de cidades para procurar
+cidades_a_procurar = [
+    'Capitão Enéas',
+    'Ibiracatu',
+    'Janaúba',
+    'Japonvar',
+    'Lontra',
+    'Montes Claros',
+    'Patis',
+    'Varzelândia',
+    'Verdelândia',
+    'São João da Ponte'
+]
+cidades_a_procurar = [cidade.upper() for cidade in cidades_a_procurar]
+
+# Abrir o arquivo Excel com a segunda coluna a ser concatenada
+DF_DATAS = pd.read_excel('São João da Ponte_revisado_final.xlsx')
+
+# Filtrar para apenas os municipios de Minas Gerais (codigos iniciados com 31)
+# Minas Gerais tem 853 municipios.
+city_coordinates = pd.read_excel('CoordenadasMunicipios.xlsx', index_col='GEOCODIGO_MUNICIPIO')
+city_coordinates = city_coordinates[ city_coordinates.index.astype(str).str.startswith('31') ].set_index('NOME_MUNICIPIO')
+
+# Criar um dicionário com os nomes dos municípios como chaves e suas coordenadas como valores
+# Encontrar as coordenadas das cidades procuradas e deixar os nomes em caixa alta
+found_cities = {}
+for sought_city in cidades_a_procurar:
+    found_cities[sought_city] = {
+        "longitude" : float(city_coordinates.loc[sought_city]['LONGITUDE']),
+        "latitude"  : float(city_coordinates.loc[sought_city]['LATITUDE'])
+    }
+
+# Exibir os resultados
+for cidade, coords in found_cities.items():
+    print(f'{cidade}: {coords}')
+    
+# Abrir o arquivo CSV
+dfSpei = pd.read_csv("speiAll_final.csv",delimiter=';')
+
+# Remover as primeiras 11 linhas
+dfSpei = dfSpei.iloc[11:].reset_index(drop=True)
+
+print(dfSpei)
+
 # Função para converter as coordenadas em valores negativos
 def convert_to_negative(coord):
     # Divide a string em partes
