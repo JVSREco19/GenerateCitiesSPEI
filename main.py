@@ -111,11 +111,8 @@ def find_cities_coordinates():
     # Encontrar as coordenadas das cidades procuradas e deixar os nomes em caixa alta
     CITIES_COORDINATES_DICT = {cidade.upper(): MUNICIPIOS_DICT.get(cidade.upper(), 'Cidade não encontrada') for cidade in CIDADES_A_PROCURAR}
 
-    # Exibir os resultados
-    for cidade, coords in CITIES_COORDINATES_DICT.items():
-        print(f'{cidade}: {coords}')    
-
-    return CITIES_COORDINATES_DICT
+# Armazenar os resultados
+result_dict = {}
 
 def find_nearest_city(municipio, coords, dfSpei):
     lat_municipio = coords['latitude']
@@ -131,8 +128,9 @@ def find_nearest_city(municipio, coords, dfSpei):
         lon_col = float(parts[1])
         lat_col = float(parts[2])
         # Calcular a distância
+        coordinates_euclidean_distance = lambda COORD1, COORD2 : np.sqrt((COORD1[0] - COORD2[0])**2 + (COORD1[1] - COORD2[1])**2)
         distance = coordinates_euclidean_distance((lat_municipio, lon_municipio), (lat_col, lon_col))
-
+        
         # Encontrar a coluna com a menor distância
         if distance < min_distance:
             min_distance = distance
