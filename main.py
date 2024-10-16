@@ -111,10 +111,8 @@ def find_nearest_city(municipio, coords, dfSpei):
     closest_col = None
 
     for col in dfSpei.columns:
-        # Supondo o formato das coordenadas como 'X,lat,lon'
-        parts = col.split(',')
-        lon_col = float(parts[1])
-        lat_col = float(parts[2])
+        # Supondo o formato das coordenadas como 'X,lon,lat'
+        (lon_col, lat_col) = map(float, col.lstrip("X,").split(',') )
         # Calcular a distância
         coordinates_euclidean_distance = lambda COORD1, COORD2 : np.sqrt((COORD1[0] - COORD2[0])**2 + (COORD1[1] - COORD2[1])**2)
         distance = coordinates_euclidean_distance((lat_municipio, lon_municipio), (lat_col, lon_col))
