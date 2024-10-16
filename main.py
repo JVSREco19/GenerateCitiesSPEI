@@ -1,9 +1,19 @@
 import pandas as pd
 import numpy as np
 
-def find_cities_coordinates(CIDADES_A_PROCURAR, DF_COORDS):
-    """
-    Return the cities' coordinates given their names.
+# Função para converter as coordenadas em valores negativos
+def convert_to_negative(coord):
+    # Divide a string em partes
+    parts = coord.split(',')
+    # Pega a latitude e longitude
+    latitude = '-'+parts[1] + '.' + parts[2]
+    longitude = '-'+parts[4] + '.' + parts[5]
+    # Converte para negativos e retorna no formato original
+    return f'X,{float(latitude) },{float(longitude) }'
+
+# Função para calcular a distância Euclidiana entre duas coordenadas
+def euclidean_distance(coord1, coord2):
+    return np.sqrt((coord1[0] - coord2[0])**2 + (coord1[1] - coord2[1])**2)
 
     Parameters
     ----------
@@ -36,73 +46,14 @@ def find_cities_coordinates(CIDADES_A_PROCURAR, DF_COORDS):
 
     return CITIES_COORDINATES_DICT
 
-def find_nearest_gauging_station(coords, dfSpei):
-    """
-    Return the coordinates for the nearest gauging station, given the coordinates of the city of interest.
-
-    Parameters
-    ----------
-    coords : the coordinates of the city of interest.
-    dfSpei : the dataframe in which to do the search. It has the coordinates of every gauging station as column names.
-
-    Returns
-    -------
-    closest_col : the coordinates of the gauging station geographically nearest to the city of interest.
-
-    """
-    lat_municipio = coords['latitude']
-    lon_municipio = coords['longitude']
-    
-    # Converter colunas para coordenadas
-    min_distance = float('inf')
-    closest_col_name = None
-
-    for col in dfSpei.columns:
-        # Supondo o formato das coordenadas como 'X,lat,lon'
-        parts = col.split(',')
-        lon_col = float(parts[1])
-        lat_col = float(parts[2])
-        # Calcular a distância
-        distance = coordinates_euclidean_distance((lat_municipio, lon_municipio), (lat_col, lon_col))
-        
-        # Encontrar a coluna com a menor distância
-        if distance < min_distance:
-            min_distance = distance
-            closest_col_name = col
-
-    return closest_col_name
-
+# Exibir os resultados
+for cidade, coords in RESULTADOS.items():
+    print(f'{cidade}: {coords}')
+     
+# Abrir o arquivo CSV, remover as 11 primeiras linhas, e converter todos os nomes de colunas para números negativos
+dfSpei = pd.read_csv("speiAll_final.csv",delimiter=';').iloc[11:].reset_index(drop=True)
 print(dfSpei)
-# Função para converter as coordenadas em valores negativos
-def convert_coordinates_to_negative(COORD):
-    """
-    Return negative coordinates provided any coordinates.
-    For example, 'X,47,95,,19,55' will be converted to 'X,-47.95,-19.55'
-
-    Parameters
-    ----------
-    COORD : string
-        Any coordinates.
-
-    Returns
-    -------
-    str
-        The negative coordinates.
-
-    """
-    # Divide a string em partes
-    PARTS = COORD.split(',')
-    # Pega a latitude e longitude
-    LATITUDE  = '-' + PARTS[1] + '.' + PARTS[2]
-    LONGITUDE = '-' + PARTS[4] + '.' + PARTS[5]
-    # Converte para negativos e retorna no formato original
-    return f'X,{float(LATITUDE) },{float(LONGITUDE) }'
-
-# Aplicar a função em todas as colunas
 dfSpei.columns = [convert_coordinates_to_negative(col) for col in dfSpei.columns]
-
-    # Encontrar as coordenadas das cidades procuradas e deixar os nomes em caixa alta
-    CITIES_COORDINATES_DICT = {cidade.upper(): MUNICIPIOS_DICT.get(cidade.upper(), 'Cidade não encontrada') for cidade in CIDADES_A_PROCURAR}
 
 # Armazenar os resultados
 result_dict = {}
