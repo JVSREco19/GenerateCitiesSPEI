@@ -43,9 +43,8 @@ def define_cities_of_interest(json_source_file_name):
         A dataframe, in long format, that lists all central cities on the first column and their corresponding bordering cities on the second column.
 
     """
-    with open(json_source_file_name, 'r') as json_source_file:
+    with open(json_source_file_name, 'r',encoding='utf-8') as json_source_file:
         DICT_OF_CITIES_TO_SEARCH_FOR = json.load(json_source_file)
-        
         list_of_city_tuples = []
         for central_city, list_of_bordering_cities in DICT_OF_CITIES_TO_SEARCH_FOR.items():
             for bordering_city in list_of_bordering_cities:
@@ -165,6 +164,7 @@ df_SPEI = pd.read_csv("speiAll_final.csv",delimiter=';').iloc[11:].reset_index(d
 df_SPEI.columns = [convert_coordinates_to_negative(col) for col in df_SPEI.columns]
 
 df_cities_of_interest = define_cities_of_interest('cidades.json')
+print(df_cities_of_interest)
 
 df_cities_coordinates = find_Minas_Gerais_cities_coordinates(df_cities_of_interest, 'CoordenadasMunicipios.xlsx')
 
