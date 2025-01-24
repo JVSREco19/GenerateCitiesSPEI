@@ -3,22 +3,9 @@ import numpy as np
 import json
 import os
 
+from city_directory import CityDirectory
+
 def define_cities_of_interest(json_source_file_name):
-    """
-    Return the cities of interest, given a file that has this information.
-
-    Parameters
-    ----------
-    json_source_file_name : string
-        The filename of the JSON file where the city names are stored.
-        The JSON file must be structured as a dictionary where the keys are the central cities, and the values are lists of bordering cities.
-
-    Returns
-    -------
-    df_cities_of_interest : dataframe
-        A dataframe, in long format, that lists all central cities on the first column and their corresponding bordering cities on the second column.
-
-    """
     with open(json_source_file_name, 'r',encoding='utf-8') as json_source_file:
         DICT_OF_CITIES_TO_SEARCH_FOR = json.load(json_source_file)
         list_of_city_tuples = []
@@ -33,37 +20,7 @@ def define_cities_of_interest(json_source_file_name):
         df_cities_of_interest['Bordering City'] = df_cities_of_interest['Bordering City'].str.upper()
     return df_cities_of_interest
 
-def find_Minas_Gerais_cities_coordinates(df_of_cities_to_search_for, cities_coordinates_spreadsheet_name):
-    # Creates the dataframe by reading the spreadsheet:
-    df_cities_coordinates = pd.read_excel(cities_coordinates_spreadsheet_name, index_col='GEOCODIGO_MUNICIPIO')
-    # Narrow down the dataframe by keeping only Minas Gerais cities:
-    df_cities_coordinates = df_cities_coordinates[ df_cities_coordinates.index.astype(str).str.startswith('31') ].set_index('NOME_MUNICIPIO')
-    
-    # Narrow down the dataframe by keeping only the sought Minas Gerais cities:
-    set_of_all_sought_city_names = set( pd.concat( [ df_cities_of_interest['Central City'], df_cities_of_interest['Bordering City'] ] ) )
-    df_cities_coordinates = df_cities_coordinates[df_cities_coordinates.index.isin(set_of_all_sought_city_names)]
-    
-    return df_cities_coordinates
-
 def find_nearest_measurement_locations(df_cities_coordinates, df_SPEI):
-    """
-    Return geographical coordinates of the nearest measurement location, given city coordinates.
-
-    Parameters
-    ----------
-    df_cities_coordinates : dataframe
-        A dataframe composed of just the sought city names and their corresponding coordinates.
-        The city names are index labels (NOME_MUNICIPIO) and the LONGITUDE and LATITUDE are the column names.
-    df_SPEI : dataframe
-        A dataframe composed of SPEI measurements filed under geographical coordinates as column names.
-
-    Returns
-    -------
-    df_nearest_measurement_locations : dataframe
-        A dataframe composed of just the sought city names and the coordinates of the corresponding nearest measurement location.
-        The city names are index labels (NOME_MUNICIPIO) and the LONGITUDE and LATITUDE are the column names.
-
-    """
     # Duplicates only the structure of the inputted dataframe, leaving the data out:
     df_nearest_measurement_locations = pd.DataFrame().reindex_like(df_cities_coordinates)
     
@@ -100,8 +57,6 @@ def make_city_timeseries_dataframe(city_name, df_nearest_measurement_locations):
     nearest_column = ','.join( [ 'X', str(df_nearest_measurement_locations.loc[city_name, 'LONGITUDE']), str(df_nearest_measurement_locations.loc[city_name, 'LATITUDE']) ] )
     
     df_city = df_SPEI[[nearest_column]].copy()
-
-    #df_city['Data'] = DF_DATES['Date'].reset_index(drop=True)
     
     # Renomear a primeira coluna para 'Series 1'
     df_city = df_city.rename(columns={df_city.columns[0]: 'Series 1'})
@@ -111,7 +66,6 @@ def make_city_timeseries_dataframe(city_name, df_nearest_measurement_locations):
     df_city.index = pd.to_datetime(df_city.index, errors='coerce')
 
     return df_city
-
 
 def write_city_timeseries_on_xlsxs(df_cities_of_interest, df_nearest_measurement_locations):
     for central_city_name in df_cities_of_interest['Central City'].unique():
@@ -132,12 +86,15 @@ def write_city_timeseries_on_xlsxs(df_cities_of_interest, df_nearest_measurement
             df_bordering_city.to_excel(f'./Data/{central_city_name}/{bordering_city_name}.xlsx', index=True)
        
 # Create a dataframe to hold all SPEI measurements together with their geographical coordinates:
-df_SPEI = pd.read_csv("speiAll_final.csv", delimiter=';', index_col='Dates')
+df_SPEI = pd.read_csv("speiAll_final.csv", delimiter=';', decimal=',', index_col='Dates')
 
 df_cities_of_interest = define_cities_of_interest('cidades.json')
-print(df_cities_of_interest)
+#print(df_cities_of_interest)
+cities_of_interest_set = set( pd.concat( [ df_cities_of_interest['Central City'], df_cities_of_interest['Bordering City'] ] ) )
 
-df_cities_coordinates = find_Minas_Gerais_cities_coordinates(df_cities_of_interest, 'CoordenadasMunicipios.xlsx')
+cities = CityDirectory('CoordenadasMunicipios.xlsx')
+df_cities_coordinates = cities.narrow_down_by_state_geocode(31)
+df_cities_coordinates = cities.narrow_down_by_city_set(cities_of_interest_set)
 
 df_nearest_measurement_locations = find_nearest_measurement_locations(df_cities_coordinates, df_SPEI)
 
