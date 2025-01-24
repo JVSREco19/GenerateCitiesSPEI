@@ -160,7 +160,7 @@ def write_city_timeseries_on_xlsxs(df_cities_of_interest, df_nearest_measurement
 DF_DATAS = pd.read_excel('São João da Ponte_revisado_final.xlsx')
         
 # Create a dataframe to hold all SPEI measurements together with their geographical coordinates:
-df_SPEI = pd.read_csv("speiAll_final.csv",delimiter=';').iloc[11:].reset_index(drop=True)
+df_SPEI = pd.read_csv("speiAll_final.csv",delimiter=';').reset_index(drop=True)
 df_SPEI.columns = [convert_coordinates_to_negative(col) for col in df_SPEI.columns]
 
 df_cities_of_interest = define_cities_of_interest('cidades.json')
