@@ -3,30 +3,6 @@ import numpy as np
 import json
 import os
 
-def convert_coordinates_to_negative(COORD):
-    """
-    Return negative coordinates provided any coordinates.
-    For example, 'X,47,95,,19,55' will be converted to 'X,-47.95,-19.55'
-
-    Parameters
-    ----------
-    COORD : string
-        Any coordinates.
-
-    Returns
-    -------
-    str
-        The negative coordinates.
-
-    """
-    # Divide a string em partes
-    PARTS = COORD.split(',')
-    # Pega a latitude e longitude
-    LATITUDE  = '-' + PARTS[1] + '.' + PARTS[2]
-    LONGITUDE = '-' + PARTS[4] + '.' + PARTS[5]
-    # Converte para negativos e retorna no formato original
-    return f'X,{float(LATITUDE) },{float(LONGITUDE) }'
-
 def define_cities_of_interest(json_source_file_name):
     """
     Return the cities of interest, given a file that has this information.
@@ -161,7 +137,6 @@ DF_DATAS = pd.read_excel('São João da Ponte_revisado_final.xlsx')
         
 # Create a dataframe to hold all SPEI measurements together with their geographical coordinates:
 df_SPEI = pd.read_csv("speiAll_final.csv",delimiter=';').reset_index(drop=True)
-df_SPEI.columns = [convert_coordinates_to_negative(col) for col in df_SPEI.columns]
 
 df_cities_of_interest = define_cities_of_interest('cidades.json')
 print(df_cities_of_interest)
