@@ -1,25 +1,10 @@
 import pandas as pd
 import numpy as np
-import json
 import os
 
-from city_directory import CityDirectory
-from spei_directory import SPEIDirectory
-
-def define_cities_of_interest(json_source_file_name):
-    with open(json_source_file_name, 'r',encoding='utf-8') as json_source_file:
-        DICT_OF_CITIES_TO_SEARCH_FOR = json.load(json_source_file)
-        list_of_city_tuples = []
-        for central_city, list_of_bordering_cities in DICT_OF_CITIES_TO_SEARCH_FOR.items():
-            for bordering_city in list_of_bordering_cities:
-                list_of_city_tuples.append( (central_city, bordering_city) )
-               
-        df_cities_of_interest = pd.DataFrame(list_of_city_tuples, columns=['Central City', 'Bordering City'])
-        
-        # Convert all city names to uppercase
-        df_cities_of_interest['Central City']   = df_cities_of_interest['Central City']  .str.upper()
-        df_cities_of_interest['Bordering City'] = df_cities_of_interest['Bordering City'].str.upper()
-    return df_cities_of_interest
+from city_directory      import CityDirectory
+from spei_directory      import SPEIDirectory
+from chosen_cities_index import ChosenCitiesIndex
 
 def find_nearest_measurement_locations(df_cities_coordinates, df_speis):
     # Duplicates only the structure of the inputted dataframe, leaving the data out:
@@ -53,13 +38,13 @@ def find_nearest_measurement_locations(df_cities_coordinates, df_speis):
     
     return df_nearest_measurement_locations
 
-def write_city_timeseries_on_xlsxs(df_speis, df_cities_of_interest, df_nearest_measurement_locations):
+def write_city_timeseries_on_xlsxs(speis, df_cities_of_interest, df_nearest_measurement_locations):
     for central_city_name in df_cities_of_interest['Central City'].unique():
         # Create one subdirectory for each central city, inside the 'Data' directory:
         os.makedirs('./Data/' + central_city_name)
         
         # Creates the xlsx of the central city:
-        df_central_city = df_speis.make_city_timeseries_df(central_city_name, df_nearest_measurement_locations)
+        df_central_city = speis.make_city_timeseries_df(central_city_name, df_nearest_measurement_locations)
         df_central_city.to_excel(f'./Data/{central_city_name}/{central_city_name}.xlsx', index=True)
         
         # Gets a list of all bordering cities names, each time for a different central city:
@@ -68,23 +53,19 @@ def write_city_timeseries_on_xlsxs(df_speis, df_cities_of_interest, df_nearest_m
         # For every bordering city, extracts the nearest column of df_SPEI and write a xlsx file in the correct subdirectory:
         for bordering_city_name in bordering_cities_names:
             # Creates the xlsx of the bordering city:
-            df_bordering_city = df_speis.make_city_timeseries_df(bordering_city_name, df_nearest_measurement_locations)
+            df_bordering_city = speis.make_city_timeseries_df(bordering_city_name, df_nearest_measurement_locations)
             df_bordering_city.to_excel(f'./Data/{central_city_name}/{bordering_city_name}.xlsx', index=True)
        
 
-
-df_cities_of_interest = define_cities_of_interest('cidades.json')
-#print(df_cities_of_interest)
-cities_of_interest_set = set( pd.concat( [ df_cities_of_interest['Central City'], df_cities_of_interest['Bordering City'] ] ) )
-
 # Creating objects:
-speis  = SPEIDirectory('speiAll_final.csv')
-cities = CityDirectory('CoordenadasMunicipios.xlsx')
+speis         = SPEIDirectory     ('speiAll_final.csv')
+cities_all    = CityDirectory     ('CoordenadasMunicipios.xlsx')
+cities_chosen = ChosenCitiesIndex ('cidades.json')
 
-# Manipulating object 'cities':
-df_cities_coordinates = cities.narrow_down_by_state_geocode(31)
-df_cities_coordinates = cities.narrow_down_by_city_set(cities_of_interest_set)
+# Manipulating object 'cities_all'   :
+df_cities_coordinates = cities_all.narrow_down_by_state_geocode(31)
+df_cities_coordinates = cities_all.narrow_down_by_city_set(cities_chosen.get_chosen_cities_set())
 
-df_nearest_measurement_locations = find_nearest_measurement_locations(df_cities_coordinates, speis.data)
+df_nearest_measurement_locations = find_nearest_measurement_locations(df_cities_coordinates, speis.df)
 
-write_city_timeseries_on_xlsxs(speis, df_cities_of_interest, df_nearest_measurement_locations)
+write_city_timeseries_on_xlsxs(speis, cities_chosen.df, df_nearest_measurement_locations)
