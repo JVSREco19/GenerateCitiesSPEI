@@ -18,7 +18,7 @@ class FileWriter:
                 self.write_xlsxs(df_bordering_city, central_city_name, bordering_city_name)
 
     def create_directory(self, central_city_name):
-        os.makedirs(f'./{self.root_dir}/{central_city_name}')
+        os.makedirs(f'./{self.root_dir}/{central_city_name}', exist_ok=True)
     
     def write_xlsxs(self, df_city, primary_city_name, secondary_city_name):
         df_city.to_excel(f'./{self.root_dir}/{primary_city_name}/{secondary_city_name}.xlsx', index=True)

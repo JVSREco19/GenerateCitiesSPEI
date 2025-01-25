@@ -6,11 +6,9 @@ class CityDirectory:
     
     def narrow_down_by_state_geocode(self, state_code):
         self.df = self.df[self.df.index.astype(str).str.startswith(str(state_code) )].set_index('NOME_MUNICIPIO')
-        return self.df
     
     def narrow_down_by_city_set(self, city_set):
         self.df = self.df[self.df.index.isin(city_set)]
-        return self.df
     
     def get_coords_by_city_name(self, city_name):
         return self.df.loc[city_name]
