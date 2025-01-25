@@ -1,10 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from city_directory      import CityDirectory
-from spei_directory      import SPEIDirectory
-from chosen_cities_index import ChosenCitiesIndex
-from file_writer         import FileWriter
+from classes import CityDirectory, SPEIDirectory, ChosenCitiesIndex, FileWriter
 
 def find_nearest_measurement_locations(df_cities_coordinates, df_speis):
     # Duplicates only the structure of the inputted dataframe, leaving the data out:
