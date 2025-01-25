@@ -12,12 +12,17 @@ class ChosenCitiesIndex:
                    
             self.df = pd.DataFrame(list_of_city_tuples, columns=['Central City', 'Bordering City'])
             
-            # Convert all city names to uppercase
-            self.df['Central City'  ] = self.df['Central City'  ].str.upper()
-            self.df['Bordering City'] = self.df['Bordering City'].str.upper()
+            self._uppercase_all_city_names()
+    
+    def _uppercase_all_city_names(self):
+        self.df['Central City'  ] = self.df['Central City'  ].str.upper()
+        self.df['Bordering City'] = self.df['Bordering City'].str.upper()
     
     def get_chosen_cities_set(self):
         return set( pd.concat( [ self.df['Central City'], self.df['Bordering City'] ] ) )
     
-    def get_list_of_bordering_cities(self, central_city_name):
-        return self.df[ self.df['Central City'] == central_city_name ]['Bordering City']
+    def get_chosen_central_cities_set(self):
+        return set( self.df['Central City'].astype(str) )
+    
+    def get_bordering_cities_set(self, central_city_name):
+        return set( self.df[ self.df['Central City'] == central_city_name ]['Bordering City'] )
