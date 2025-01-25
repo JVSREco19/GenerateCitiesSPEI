@@ -18,3 +18,6 @@ class ChosenCitiesIndex:
     
     def get_chosen_cities_set(self):
         return set( pd.concat( [ self.df['Central City'], self.df['Bordering City'] ] ) )
+    
+    def get_list_of_bordering_cities(self, central_city_name):
+        return self.df[ self.df['Central City'] == central_city_name ]['Bordering City']
