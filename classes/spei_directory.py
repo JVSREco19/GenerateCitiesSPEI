@@ -8,17 +8,24 @@ class SPEIDirectory:
         # Format: 'X,longitude,latitude'
         return map(float, column.lstrip('X,').split(',') )
     
-    def make_city_timeseries_df(self, city_name, df_nearest_measurement_locations):
+    def _craft_nearest_col_header(self, city_name, df_nearest_measurement_locations):
         # Rebuilding the coordinates from the dataframe columns:
-        nearest_column = ','.join( [ 'X', str(df_nearest_measurement_locations.loc[city_name, 'LONGITUDE']), str(df_nearest_measurement_locations.loc[city_name, 'LATITUDE']) ] )
-        
-        df_city = self.df[[nearest_column]].copy()
-        
-        # Renomear a primeira coluna para 'Series 1'
-        df_city = df_city.rename(columns={df_city.columns[0]: 'Series 1'})
-        
+        return ','.join( [ 'X',
+                          str(df_nearest_measurement_locations.loc[city_name, 'LONGITUDE']),
+                          str(df_nearest_measurement_locations.loc[city_name, 'LATITUDE' ]) ] )
+    
+    def _convert_city_timeseries_df_types(self, df_city):
         # Converter Series para float e Dates para datetime
         df_city['Series 1'] = df_city['Series 1'].astype(float)
         df_city.index = pd.to_datetime(df_city.index, errors='coerce')
+        
+        return df_city
+    
+    def make_city_timeseries_df(self, city_name, df_nearest_measurement_locations):
+        nearest_column_header = self._craft_nearest_col_header(city_name, df_nearest_measurement_locations)
+        
+        df_city = self.df[[nearest_column_header]].copy()
+        df_city = df_city.rename(columns={df_city.columns[0]: 'Series 1'})
+        df_city = self._convert_city_timeseries_df_types(df_city)
         
         return df_city
