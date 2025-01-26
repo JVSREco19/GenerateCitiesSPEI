@@ -3,7 +3,11 @@ import pandas as pd
 class SPEIDirectory:
     def __init__(self, file_name):
         self.df = pd.read_csv(file_name, delimiter=';', decimal=',', index_col='Dates')
-
+    
+    def get_col_coords(self, column):
+        # Format: 'X,longitude,latitude'
+        return map(float, column.lstrip('X,').split(',') )
+    
     def make_city_timeseries_df(self, city_name, df_nearest_measurement_locations):
         # Rebuilding the coordinates from the dataframe columns:
         nearest_column = ','.join( [ 'X', str(df_nearest_measurement_locations.loc[city_name, 'LONGITUDE']), str(df_nearest_measurement_locations.loc[city_name, 'LATITUDE']) ] )
