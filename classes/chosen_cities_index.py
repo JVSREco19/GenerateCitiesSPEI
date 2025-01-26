@@ -4,15 +4,23 @@ import json
 class ChosenCitiesIndex:
     def __init__(self, file_name):
         with open(file_name, 'r',encoding='utf-8') as json_source_file:
-            DICT_OF_CITIES_TO_SEARCH_FOR = json.load(json_source_file)
-            list_of_city_tuples = []
-            for central_city, list_of_bordering_cities in DICT_OF_CITIES_TO_SEARCH_FOR.items():
-                for bordering_city in list_of_bordering_cities:
-                    list_of_city_tuples.append( (central_city, bordering_city) )
-                   
-            self.df = pd.DataFrame(list_of_city_tuples, columns=['Central City', 'Bordering City'])
-            
+            self.df = self._load_cities_data(json_source_file)
             self._uppercase_all_city_names()
+    
+    def _load_cities_data(self, json_source_file):
+        DICT_OF_CITIES_TO_SEARCH_FOR = json.load(json_source_file)
+        list_of_city_tuples = self._generate_city_tuples(DICT_OF_CITIES_TO_SEARCH_FOR)
+
+        return pd.DataFrame(list_of_city_tuples, columns=['Central City', 'Bordering City'])
+    
+    def _generate_city_tuples(self, DICT_OF_CITIES_TO_SEARCH_FOR):
+        list_of_city_tuples = []
+        
+        for central_city, list_of_bordering_cities in DICT_OF_CITIES_TO_SEARCH_FOR.items():
+            for bordering_city in list_of_bordering_cities:
+                list_of_city_tuples.append( (central_city, bordering_city) )
+        
+        return list_of_city_tuples
     
     def _uppercase_all_city_names(self):
         self.df['Central City'  ] = self.df['Central City'  ].str.upper()
