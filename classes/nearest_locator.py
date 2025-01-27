@@ -15,28 +15,38 @@ class NearestLocator:
         return {'LONGITUDE' : cities_coordinates_directory.get_coords_by_city_name(CITY_NAME).LONGITUDE, 
                 'LATITUDE'  : cities_coordinates_directory.get_coords_by_city_name(CITY_NAME).LATITUDE}
     
+    def _get_col_coords(self, speis, col_header):
+        LONGITUDE, LATITUDE = speis.get_col_coords(col_header)
+        
+        return {'LONGITUDE' : LONGITUDE,
+                'LATITUDE'  : LATITUDE}
+    
     def _set_city_coords(self, CITY_NAME, COORDS_DICT):
         self.df.loc[CITY_NAME] = COORDS_DICT
     
     def _calculate_col_distances(self, COORDS_CITY, speis):
         distances_dict = {}
         for col_header in speis.df.columns:
-            COORDS_COL = {}
-            (COORDS_COL['LONGITUDE'], COORDS_COL['LATITUDE']) = speis.get_col_coords(col_header)
+            COORDS_COL = self._get_col_coords(speis, col_header)
             
             distances_dict[col_header] = self._calculate_euclidean_distance(COORDS_CITY, COORDS_COL)
         
         return distances_dict
     
     def _find_nearest_col(self, COORDS_CITY, speis):
-        distances_dict = self._calculate_col_distances(COORDS_CITY, speis)            
+        distances_dict     = self._calculate_col_distances(COORDS_CITY, speis)            
+        coords_closest_col = self._find_min_distance(distances_dict, speis)
+    
+        return coords_closest_col
         
+    def _find_min_distance(self, distances_dict, speis):
         min_distance       = float('inf')
+        coords_closest_col = None
+        
         for col_header, distance in distances_dict.items():
             if distance < min_distance:
                 min_distance       = distance
-                COORDS_COL = {}
-                (COORDS_COL['LONGITUDE'], COORDS_COL['LATITUDE']) = speis.get_col_coords(col_header)
+                COORDS_COL         = self._get_col_coords(speis, col_header)
                 coords_closest_col = COORDS_COL.copy()
                 
         return coords_closest_col

@@ -9,10 +9,11 @@ class SPEIDirectory:
         return map(float, column.lstrip('X,').split(',') )
     
     def _craft_nearest_col_header(self, city_name, df_nearest_measurement_locations):
-        # Rebuilding the coordinates from the dataframe columns:
-        return ','.join( [ 'X',
-                          str(df_nearest_measurement_locations.loc[city_name, 'LONGITUDE']),
-                          str(df_nearest_measurement_locations.loc[city_name, 'LATITUDE' ]) ] )
+        # Rebuilding the coordinates from the dataframe columns:            
+        LONGITUDE = str(df_nearest_measurement_locations.loc[city_name, 'LONGITUDE'])
+        LATITUDE  = str(df_nearest_measurement_locations.loc[city_name, 'LATITUDE' ])
+        
+        return f'X,{LONGITUDE},{LATITUDE}'
     
     def _convert_city_timeseries_df_types(self, df_city):
         # Converter Series para float e Dates para datetime

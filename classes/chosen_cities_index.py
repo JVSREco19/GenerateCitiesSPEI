@@ -3,14 +3,18 @@ import json
 
 class ChosenCitiesIndex:
     def __init__(self, file_name):
-        with open(file_name, 'r',encoding='utf-8') as json_source_file:
-            self.df = self._load_cities_data(json_source_file)
-            self._uppercase_all_city_names()
+        # Fill the DF:
+        DICT_OF_CITIES_TO_SEARCH_FOR = self._read_json_file(file_name)        
+        list_of_city_tuples          = self._generate_city_tuples(DICT_OF_CITIES_TO_SEARCH_FOR)
+        
+        self.df = self._create_city_tuples(list_of_city_tuples)
+        self._uppercase_all_city_names()
     
-    def _load_cities_data(self, json_source_file):
-        DICT_OF_CITIES_TO_SEARCH_FOR = json.load(json_source_file)
-        list_of_city_tuples = self._generate_city_tuples(DICT_OF_CITIES_TO_SEARCH_FOR)
-
+    def _read_json_file(self, file_name):
+        with open(file_name, 'r',encoding='utf-8') as json_source_file:
+            return json.load(json_source_file)
+    
+    def _create_city_tuples(self, list_of_city_tuples):
         return pd.DataFrame(list_of_city_tuples, columns=['Central City', 'Bordering City'])
     
     def _generate_city_tuples(self, DICT_OF_CITIES_TO_SEARCH_FOR):
