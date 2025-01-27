@@ -18,20 +18,25 @@ class NearestLocator:
     def _set_city_coords(self, CITY_NAME, COORDS_DICT):
         self.df.loc[CITY_NAME] = COORDS_DICT
     
-    def _find_nearest_col(self, COORDS_CITY, speis):
-        # For a given city, runs over all cols of speis and finds the nearest one.
-        min_distance       = float('inf')
-        
-        # For every measurement location (col) indicated in df_SPEI, does the following:
-        for column in speis.df.columns:
+    def _calculate_col_distances(self, COORDS_CITY, speis):
+        distances_dict = {}
+        for col_header in speis.df.columns:
             COORDS_COL = {}
-            (COORDS_COL['LONGITUDE'], COORDS_COL['LATITUDE']) = speis.get_col_coords(column)
+            (COORDS_COL['LONGITUDE'], COORDS_COL['LATITUDE']) = speis.get_col_coords(col_header)
             
-            distance = self._calculate_euclidean_distance(COORDS_CITY, COORDS_COL)
-            
-            # Find the geographically nearest measurement location:
+            distances_dict[col_header] = self._calculate_euclidean_distance(COORDS_CITY, COORDS_COL)
+        
+        return distances_dict
+    
+    def _find_nearest_col(self, COORDS_CITY, speis):
+        distances_dict = self._calculate_col_distances(COORDS_CITY, speis)            
+        
+        min_distance       = float('inf')
+        for col_header, distance in distances_dict.items():
             if distance < min_distance:
                 min_distance       = distance
+                COORDS_COL = {}
+                (COORDS_COL['LONGITUDE'], COORDS_COL['LATITUDE']) = speis.get_col_coords(col_header)
                 coords_closest_col = COORDS_COL.copy()
                 
         return coords_closest_col
